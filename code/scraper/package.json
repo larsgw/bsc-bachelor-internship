@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "name": "bee-scraper",
+  "version": "0.0.0",
+  "description": "Scraper for bee data",
+  "main": "index.js",
+  "keywords": ["scraper", "Hymenoptera", "bees", "insects"],
+  "author": "Lars Willighagen",
+  "license": "MIT",
+  "dependencies": {
+    "jsdom": "^19.0.0"
+  }
+}
