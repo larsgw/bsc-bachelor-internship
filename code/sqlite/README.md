@@ -1,3 +1,10 @@
+# Dependencies
+
+  - [SQLite](https://www.sqlite.org/index.html) 3
+  - [SpatiaLite](https://www.gaia-gis.it/fossil/libspatialite/index) 5
+
+# Usage
+
   - [`make-gpkg.sql`](https://github.com/larsgw/bsc-bachelor-internship/blob/main/code/sqlite/make-gpkg.sql):
     make GPKG file from id/long/lat CSV files (coordinates expected in EPSG 28992)
   - [`start-gpkg.sql`](https://github.com/larsgw/bsc-bachelor-internship/blob/main/code/sqlite/start-gpkg.sql):
