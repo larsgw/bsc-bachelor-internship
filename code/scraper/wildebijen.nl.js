@@ -3,6 +3,7 @@ const path = require('path')
 
 const fetch = require('node-fetch')
 const { JSDOM } = require('jsdom')
+const { parse: json2csv } = require('json2csv')
 
 const BASE_URL = 'https://www.wildebijen.nl/'
 const CACHE_FILE = path.join(__dirname, 'cache.json')
@@ -43,6 +44,38 @@ const exceptions = {
   lasioglossum_sexstrigatum: [1],
   lasioglossum_tarsatum: [6],
   biggenkruidgroefbij: [1, 18],
+  sphecodes_ephippius: [27, 28],
+  sphecodes_ferruginatus: [6],
+  sphecodes_geoffrellus: [29],
+  sphecodes_miniatus: [5, 12],
+  sphecodes_pellucidus: [12],
+  sphecodes_puncticeps: [29],
+  andrena_chrysosceles: [11, 19],
+  heidezandbij: [17],
+  andrena_mitis: [27],
+  andrena_pandellei: [28, 29, 30, 31],
+  kleineklokjesbij: [26],
+  zuidelijke_klokjesbij: [29],
+  ranonkelbij: [18, 28],
+  nomada_argentata: [5, 11],
+  nomada_armata: [5, 11],
+  nomada_flava: [10],
+  nomada_fucata: [10],
+  nomada_integra: [11],
+  nomada_leucophthalma: [11],
+  nomada_marshamella: [10],
+  nomada_obscura: [11],
+  nomada_panzeri: [10],
+  nomada_ruficornis: [10],
+  nomada_succincta: [10],
+  nomada_zonata: [10],
+  zlanghoornbij: [2],
+  gele_hommel: [21],
+  heidehommel: [10, 18],
+  veenhommel: [18],
+  grashommel: [19],
+  donkere_tuinhommel: [2],
+  vierkleurigekhommel: [11],
   kleineroetbij: [21],
   tweelobbigewolbij: [12],
   Stelis_breviuscula: [26],
@@ -76,6 +109,44 @@ const exceptions = {
 
 const reverseExceptions = new Set([
   'vierbandgroefbij',
+  'sphecodes_gibbus',
+  'sphecodes_reticulatus',
+  'sphecodes_spinulosus', // not really but good enough
+  'andrena_agilissima',
+  'andrena_apicata',
+  'andrena_argentata',
+  'andrena_barbilabris',
+  'andrena_bicolor',
+  'andrena_bimaculata',
+  'andrena_carantonica',
+  'andrena_cineraria',
+  'zwartrossezandbij',
+  'andrena_fucata',
+  'andrena_fulvago',
+  'andrena_gravida',
+  'roodgatjebij',
+  'andrena_helvola',
+  'andrena_labialis',
+  'andrena_labiata',
+  'andrena_marginata',
+  'andrena_minutula',
+  'andrena_minutuloides',
+  'andrena_nigriceps',
+  'andrena_nitida',
+  'andrena_ovatula',
+  'andrena_proxima',
+  'andrena_ruficrus',
+  'andrena_simillima',
+  'andrena_subopaca',
+  'andrena_synadelpha',
+  'andrena_tarsata',
+  'andrena_tibialis',
+  'grijze_zandbij',
+  'andrena_varians',
+  'andrena_wilkella',
+  'steenhommel',
+  'grote_koekoekshommel',
+  'zandhommel',
   'Coelioxys_afra',
   'coelioxys_aurolimbata',
   'osmia_parietina',
@@ -84,6 +155,14 @@ const reverseExceptions = new Set([
   'gewone_sachembij',
   'honingbij'
 ])
+
+const urlMap = {
+  'https://www.wildebijen.nl/coelioxys_alata.html': 'https://www.wildebijen.nl/Coelioxys_alata.html',
+  'https://www.wildebijen.nl/Andrena_minutula.html': 'https://www.wildebijen.nl/andrena_minutula.html',
+  'https://www.wildebijen.nl/Andrena_minutuloides.html': 'https://www.wildebijen.nl/andrena_minutuloides.html',
+  'https://www.wildebijen.nl/Andrena_mitis.html': 'https://www.wildebijen.nl/andrena_mitis.html',
+  'https://www.wildebijen.nl/Andrena_varians.html': 'https://www.wildebijen.nl/andrena_varians.html',
+}
 
 async function main () {
   if (exists(CACHE_FILE)) {
@@ -95,15 +174,18 @@ async function main () {
   const taxa = {}
 
   for (const genus of index) {
+    if (genus.textContent === 'Apis') {
+      continue
+    }
+
     const genusUrl = BASE_URL + genus.getAttribute('href')
     const genusIndex = (await fetchApi(genusUrl))
-      .querySelectorAll('.content + .content table:first-child tr:not(:first-child) td:nth-child(2) a')
+      .querySelector('.content + .content table:first-child, .kop + .content table:nth-child(2)')
+      .querySelectorAll('tr:not(:first-child) td:nth-child(2) a')
 
     for (const species of genusIndex) {
       let speciesUrl = BASE_URL + species.getAttribute('href')
-      if (speciesUrl === 'https://www.wildebijen.nl/coelioxys_alata.html') {
-        speciesUrl = 'https://www.wildebijen.nl/Coelioxys_alata.html'
-      }
+      speciesUrl = urlMap[speciesUrl] || speciesUrl
       const speciesInfo = await fetchApi(speciesUrl)
 
       let [keys, values] = Array.from(speciesInfo
@@ -116,6 +198,8 @@ async function main () {
           .replace(/&amp;/g, '&')
           .replace(/F�rster/g, 'Förster')
           .replace(/P�rez/g, 'Pérez')
+          .replace(/M�ller/g, 'Müller')
+          .replace(/Herrich-Sch�ffer/g, 'Herrich-Schäffer')
           .replace(/ph�eum/g, 'pháeum')
           .split(/ ?<br> ?/g)
         )
@@ -174,6 +258,11 @@ async function main () {
   }
 
   await fs.writeFile('output.json', JSON.stringify(taxa, null, 2))
+
+  const taxaInfo = Object.values(taxa).map(taxon => taxon.info)
+  await fs.writeFile('output-info.json', JSON.stringify(taxaInfo, null, 2))
+
+  await fs.writeFile('output.csv', json2csv(taxaInfo))
 }
 
 main().catch(console.error).finally(() => fs.writeFile(CACHE_FILE, JSON.stringify(cache)))
