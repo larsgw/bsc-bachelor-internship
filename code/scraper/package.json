@@ -8,6 +8,7 @@
   "author": "Lars Willighagen",
   "license": "MIT",
   "dependencies": {
-    "jsdom": "^19.0.0"
+    "jsdom": "^19.0.0",
+    "json2csv": "^5.0.7"
   }
 }
