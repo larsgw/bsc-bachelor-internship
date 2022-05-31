@@ -143,22 +143,37 @@ async function main () {
 
       // Combine multigenerational times
       if (info['vliegtijd 1']) {
-        info.vliegtijd = info['vliegtijd 1'] + ' en ' + info['vliegtijd 2']
+        info.vliegtijd = [
+          info['vliegtijd 1'],
+          info['vliegtijd 2']
+        ].filter(Boolean).join(' en ')
         delete info['vliegtijd 1']
         delete info['vliegtijd 2']
       }
 
       if (info['hoofdvliegtijd 1 V']) {
-        info['hoofdvliegtijd V'] = info['hoofdvliegtijd 1 V'] + ' en ' + info['hoofdvliegtijd 2 V']
+        info['hoofdvliegtijd V'] = [
+          info['hoofdvliegtijd 1 V'],
+          info['hoofdvliegtijd 2 V']
+        ].filter(Boolean).join(' en ')
         delete info['hoofdvliegtijd 1 V']
         delete info['hoofdvliegtijd 2 V']
       }
 
       if (info['hoofdvliegtijd 1 M']) {
-        info['hoofdvliegtijd M'] = info['hoofdvliegtijd 1 M'] + ' en ' + info['hoofdvliegtijd 2 M']
+        info['hoofdvliegtijd M'] = [
+          info['hoofdvliegtijd 1 M'],
+          info['hoofdvliegtijd 2 M']
+        ].filter(Boolean).join(' en ')
         delete info['hoofdvliegtijd 1 M']
         delete info['hoofdvliegtijd 2 M']
       }
+
+      // Add defaults when relevant
+      info['lengte V'] = info['lengte V'] || info.lengte
+      info['lengte M'] = info['lengte M'] || info.lengte
+      info['foerageergebied V'] = info['foerageergebied V'] || info.foerageergebied
+      info['foerageergebied M'] = info['foerageergebied M'] || info.foerageergebied
 
       // Standardize date range formatting
       for (const key of ['vliegtijd', 'hoofdvliegtijd V', 'hoofdvliegtijd M', 'hoofdvliegtijd K']) {
@@ -182,7 +197,6 @@ async function main () {
 
       // Check the numbers
       if (/^\d+$/.test(nummer) && info.nummer !== nummer) {
-        console.log(speciesUrl, nummer, info.nummer)
         info.nummer = nummer
       }
 
