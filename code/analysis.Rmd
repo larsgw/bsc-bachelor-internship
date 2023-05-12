@@ -1,0 +1,982 @@
+---
+title: "Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(pscl)
+library(vegan)
+library(sf)
+library(ggspatial)
+```
+
+## Loading data
+
+```{r coordinates}
+location_coords <- read_csv(
+  '../data/locations/locations.csv',
+  col_names = c('location', 'location_x', 'location_y'),
+  skip = 1,
+  show_col_types = FALSE) %>%
+  # fix typo
+  mutate(location_y = recode(location_y, `248876` = 428876))
+```
+
+```{r abundance}
+abundance.header <- sapply(read.csv('../data/abundance.csv', nrow = 2, header = FALSE), paste, collapse = '_')
+abundance <- read_csv(
+  '../data/abundance.csv',
+  skip = 3,
+  col_names = abundance.header,
+  na = c('', 'NA', '#N/A'),
+  col_types = cols(Location_Year = col_character(), .default = col_double())) %>%
+  rename(species = Location_Year) %>%
+  gather(key = 'Location_Year', value = 'abundance', -species) %>%
+  separate(Location_Year, into = c('location', 'year')) %>%
+  left_join(location_coords, by = c('location'))
+```
+
+```{r transects}
+transects.header <- sapply(read.csv('../data/transects.csv', nrow = 2, header = FALSE), paste, collapse = '_')
+transects <- read_csv(
+  '../data/transects.csv',
+  skip = 3,
+  col_names = transects.header,
+  na = c('', 'NA', '#N/A'),
+  col_types = cols(Location_Year = col_character(), .default = col_double())) %>%
+  rename(species = Location_Year) %>%
+  gather(key = 'Location_Year', value = 'abundance', -species) %>%
+  separate(Location_Year, into = c('location', 'year')) %>%
+  mutate(abundance = replace_na(abundance, 0))
+```
+
+```{r flower survey}
+locations.plant.survey.header <- unlist(read.csv('../data/vegetation.csv', nrow = 1, skip = 1, header = FALSE))
+locations.plant.survey <- read_csv(
+  '../data/vegetation.csv',
+  skip = 3,
+  col_names = locations.plant.survey.header,
+  na = c(''),
+  col_types = cols(`Biblio referentie` = col_character(), .default = col_double())) %>%
+  rename(
+    species = `Biblio referentie`,
+    ME005 = ME004,
+    ND063 = ND062,
+    ND051 = ND052,
+    ND090 = ND089
+  ) %>%
+  mutate_at(vars(-species), ~ replace_na(., 0))
+```
+
+```{r flower scale}
+locations.flower.scale <- read_csv(
+  '../data/abundance.csv',
+  n_max = 1,
+  skip = 2,
+  col_names = abundance.header,
+  na = c('', 'NA', '#N/A'),
+  col_types = cols(Location_Year = col_character(), .default = col_double())) %>%
+  select(-Location_Year) %>%
+  gather(key = 'Location_Year', value = 'flower_scale') %>%
+  separate(Location_Year, into = c('location', 'year'))
+```
+
+```{r landuse}
+locations.landuse.200 <- read_csv('../data/locations/locations-landuse-200.csv', show_col_types = FALSE)
+locations.landuse.500 <- read_csv('../data/locations/locations-landuse-500.csv', show_col_types = FALSE)
+locations.landuse.1000 <- read_csv('../data/locations/locations-landuse-1000.csv', show_col_types = FALSE)
+
+locations.landuse <- rbind(
+  locations.landuse.200 %>% mutate(radius = 200),
+  locations.landuse.500 %>% mutate(radius = 500),
+  locations.landuse.1000 %>% mutate(radius = 1000)
+)
+```
+
+```{r bees}
+bees <- read_tsv('./scraper/output.tsv', show_col_types = FALSE)
+bee.wing.length <- read_csv('../data/wing_length.csv', show_col_types = FALSE) %>% rename(length = wing_length)
+bee.wing.length <- bee.wing.length %>%
+  add_row(
+    species = 'Bombus_terrestris/lucorum',
+    length = mean(bee.wing.length$length[bee.wing.length$species %in% c('Bombus_terrestris', 'Bombus_lucorum')])
+  )
+bees.eis <- read_csv('../data/bees_EIS.csv', show_col_types = FALSE) %>%
+  add_row(
+    Soort = 'Bombus terrestris/lucorum',
+    Bloembezoek = 'poly'
+  )
+```
+
+```{r nectar production}
+nectar.production <- read_csv(
+  '../data/nectar_production.csv',
+  skip = 3,
+  col_names = c('species', 'nectar_production_infloresence', 'nectar_production_plant'),
+  show_col_types = FALSE
+)
+```
+
+```{r location management}
+location.management <- read_csv('../data/locations_management.csv', show_col_types = FALSE) %>%
+  mutate(Management = recode(beheer, `privaat beheer` = 'private'))
+```
+
+## Summary statistics
+
+```{json map bounds}
+{
+  "type": "Polygon",
+  "crs": 4326,
+  "coordinates": [[
+    [5.74, 51.84],
+    [6.06, 51.84],
+    [6.06, 51.89],
+    [5.74, 51.89],
+    [5.74, 51.84]
+  ]]
+}
+```
+
+```{r}
+location_coords %>%
+  group_by(location) %>%
+  mutate(measure = ifelse(
+    is.na(sum(abundance$abundance[abundance$location == location])),
+    '2019, 2021', '2019, 2020, 2021'
+  )) %>%
+  ungroup() %>%
+  left_join(location.management, by = c(location = 'locatie')) %>%
+  st_as_sf(coords = c('location_x', 'location_y'), crs = 28992) %>%
+  st_transform(4326) %>%
+  ggplot() +
+  annotation_map_tile(type = 'osm', zoom = 11) +
+  geom_sf(aes(geometry = geometry, fill = Management), shape = 21) +
+  ggrepel::geom_label_repel(aes(label = location, geometry = geometry), stat = 'sf_coordinates') +
+  coord_sf(xlim = c(5.74, 6.06), ylim = c(51.84, 51.89))
+```
+
+```{r}
+ggsave('../figures/map.png', dpi = 300, width = 21, height = 6)
+```
+
+### Genus-year bar graph
+
+```{r}
+abundance.grouped <- abundance %>%
+  mutate(
+    genus = sapply(str_split(species, '[ _]'), '[', 1),
+    year = recode(year, `2020` = '2020*', `2021` = '2021*')
+  ) %>%
+  group_by(genus) %>%
+  mutate(genus = ifelse(sum(abundance, na.rm = TRUE) > 20, genus, 'Other')) %>%
+  ungroup() %>%
+  group_by(year, genus) %>%
+  summarize(
+    n_locations = n_distinct(location[!is.na(abundance)]),
+    abundance = sum(abundance, na.rm = TRUE) / n_locations,
+    .groups = 'drop'
+  ) %>%
+  arrange(year, genus) %>%
+  mutate(genus = factor(genus), year = factor(year))
+
+abundance.grouped.ribbon <- abundance.grouped %>%
+  group_by(year) %>%
+  mutate(offset = sum(abundance) - cumsum(abundance)) %>%
+  group_by(genus, abundance, offset) %>%
+  summarize(year = as.numeric(year) + 0.3 * c(-1, 1), .groups = 'drop')
+```
+
+```{r}
+ggplot(abundance.grouped, aes(x = as.numeric(year), y = abundance, fill = genus)) +
+  geom_ribbon(
+    aes(x = year, ymin = offset, ymax = offset + abundance),
+    data = abundance.grouped.ribbon,
+    alpha = 0.25
+  ) +
+  geom_col(position = 'stack', width = 0.6) +
+  theme_classic(base_size = 14) +
+  scale_x_continuous(breaks = 1:(nlevels(abundance.grouped$year)), labels = levels(abundance.grouped$year)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_brewer(
+    palette = 'Paired',
+    labels = Vectorize(function (genus) { if (genus == 'Other') { genus } else { bquote(italic(.(genus))) } })
+  ) +
+  labs(
+    x = 'Year',
+    y = 'Mean number of individuals per location',
+    fill = 'Genus'
+  )
+```
+
+```{r}
+ggsave('../figures/summary-genus.png', dpi = 300, width = 7, height = 4)
+```
+
+### Appendix
+
+```{r}
+abundance.bees <- abundance %>%
+  group_by(species, year) %>%
+  summarize(abundance = sum(abundance, na.rm = TRUE), .groups = 'drop') %>%
+  mutate(
+    species = str_replace(species, ' ', '_'),
+    species = str_replace(species, '_cf$', ''),
+
+    species = str_replace(species, '^Andrena_minitula$', 'Andrena_minutula'),
+    species = str_replace(species, '^Chalicodoma_ericetorum$', 'Megachile_ericetorum'),
+    species = str_replace(species, '^Nomada_conjugens$', 'Nomada_conjungens'),
+    species = str_replace(species, '^Nomada_lathburnia$', 'Nomada_lathburiana'),
+    species = str_replace(species, '^Lasioglossum_sextrigatum$', 'Lasioglossum_sexstrigatum'),
+  ) %>%
+  spread(year, abundance) %>%
+  left_join(bee.wing.length, by = 'species') %>%
+  mutate(species = str_replace(species, '_', ' ')) %>%
+  left_join(bees.eis, by = c(species = 'Soort')) %>%
+  mutate(diet = recode(Bloembezoek,
+    poly = 'polylectic',
+    `poly b` = 'limited polyl.',
+    oligo = 'oligolectic',
+    .missing = 'parasite'
+  )) %>%
+  left_join(
+    bees %>% separate(species, into = c('species', 'author'), ' (?=[A-Z(]|von )', extra = 'merge'),
+    by = 'species'
+  ) %>%
+  select(species, author, `2019`, `2020`, `2021`, wing.length = length, diet) %>%
+  replace_na(list(wing.length = '—'))
+
+write_tsv(abundance.bees, '../data/processed/abundance.bees.tsv')
+
+abundance.bees
+```
+
+### Counts
+
+```{r}
+abundance %>%
+  filter(abundance > 0) %>%
+  rowwise() %>%
+  summarise(year = c(year, 'Total'), species = species, abundance = abundance, .groups = 'drop') %>%
+  group_by(year) %>%
+  summarise(abundance = sum(abundance), species = n_distinct(species), .groups = 'drop')
+```
+
+## Vegetation
+
+### Bee size
+
+```{r data}
+bees.length <- bees %>%
+  rowwise() %>%
+  mutate(
+    species = str_replace(str_split(species, ' ([A-Z(]|von )')[[1]][[1]], ' ', '_'),
+    species = str_replace(species, '^klaverzandzandbij$', 'Andrena_labialis'),
+    species = str_replace(species, '^Osmia_rufa$', 'Osmia_bicornis'),
+
+    length_v = mean(as.numeric(unlist(str_split(`lengte V`, '-')))),
+    length_k = mean(as.numeric(unlist(str_split(`lengte K`, '-')))),
+    length_v = ifelse(is.na(length_v), length_k, length_v),
+    length_m = mean(as.numeric(unlist(str_split(`lengte M`, '-')))),
+    length = mean(c(length_v, length_m))
+  ) %>%
+  select(species, length)
+
+bees.length <- bees.length %>%
+  rbind(data.frame(
+    species = 'Bombus_terrestris/lucorum',
+    length = mean(bees.length$length[bees.length$species %in% c('Bombus_terrestris', 'Bombus_lucorum')])
+  )) %>%
+  rbind(data.frame(
+    species = 'Dasypoda_hirtipes',
+    length = mean(12, 15)
+  ))
+
+locations.plant.survey_ <- locations.plant.survey %>%
+  pivot_longer(cols = -species, names_to = 'location', values_to = 'abundance') %>%
+  rowwise(species, location, abundance) %>%
+  summarise(
+    nectar.production = replace_na(sum(nectar.production$nectar_production_plant[nectar.production$species == species]), 0),
+    nectar.producing = nectar.production * abundance,
+    .groups = 'drop'
+  ) %>%
+  group_by(location) %>%
+  summarize(
+    plant.diversity = sum(sign(abundance)),
+    plant.abundance = sum(abundance),
+    nectar.production = sum(nectar.production * abundance),
+    nectar.diversity = sum(sign(nectar.producing)),
+    .groups = 'drop'
+  )
+
+bee.length.plant.survey <- abundance %>%
+  mutate(
+    species = str_replace(species, ' ', '_'),
+    species = str_replace(species, '_cf$', ''),
+
+    species = str_replace(species, '^Andrena_minitula$', 'Andrena_minutula'),
+    species = str_replace(species, '^Chalicodoma_ericetorum$', 'Megachile_ericetorum'),
+    species = str_replace(species, '^Nomada_conjugens$', 'Nomada_conjungens'),
+    species = str_replace(species, '^Nomada_lathburnia$', 'Nomada_lathburiana'),
+    species = str_replace(species, '^Lasioglossum_sextrigatum$', 'Lasioglossum_sexstrigatum')
+  ) %>%
+  left_join(locations.plant.survey_, by = 'location') %>%
+  left_join(bee.wing.length, by = 'species') %>%
+  filter(!is.na(abundance)) %>%
+  uncount(weights = abundance)
+```
+
+```{r}
+sort(unique((abundance %>%
+  mutate(
+    species = str_replace(species, ' ', '_'),
+    species = str_replace(species, '_cf$', ''),
+
+    species = str_replace(species, '^Andrena_minitula$', 'Andrena_minutula'),
+    species = str_replace(species, '^Chalicodoma_ericetorum$', 'Megachile_ericetorum'),
+    species = str_replace(species, '^Nomada_conjugens$', 'Nomada_conjungens'),
+    species = str_replace(species, '^Nomada_lathburnia$', 'Nomada_lathburiana')
+  ) %>%
+  left_join(bees.length, by = 'species') %>%
+  filter(!is.na(abundance), abundance > 0, is.na(length))
+)$species))
+```
+
+```{r figures}
+bee.length.plant.survey. <- bee.length.plant.survey
+# bee.length.plant.survey. <- filter(bee.length.plant.survey, str_starts(species, 'Bombus_'))
+
+summary(bee.length.plant.survey.lme.abundance <- lme4::glmer(
+  length ~ plant.abundance + year + (1 + plant.abundance | location),
+  family = Gamma(),
+  data = bee.length.plant.survey.
+))
+
+summary(bee.length.plant.survey.lme.diversity <- lme4::glmer(
+  length ~ plant.diversity + year + (1 + plant.diversity | location),
+  family = Gamma(),
+  data = bee.length.plant.survey.
+))
+
+summary(bee.length.plant.survey.lme.nectar.production <- lme4::glmer(
+  length ~ nectar.production + year + (1 + nectar.production | location),
+  family = Gamma(),
+  data = bee.length.plant.survey. %>% mutate(nectar.production = scale(nectar.production))
+))
+
+summary(bee.length.plant.survey.lme.nectar.diversity <- lme4::glmer(
+  length ~ nectar.diversity + year + (1 + nectar.diversity | location),
+  family = Gamma(),
+  data = bee.length.plant.survey.
+))
+
+bee.length.plant.survey.lme <- rbind(
+  # effects::effect('plant.abundance', bee.length.plant.survey.lme.abundance, xlevels = 100) %>%
+  #   as.data.frame() %>%
+  #   gather(plant.abundance, key = 'key', value = 'value'),
+  # effects::effect('plant.diversity', bee.length.plant.survey.lme.diversity, xlevels = 100) %>%
+  #   as.data.frame() %>%
+  #   gather(plant.diversity, key = 'key', value = 'value'),
+
+  effects::effect('nectar.production', bee.length.plant.survey.lme.nectar.production, xlevels = 100) %>%
+    as.data.frame() %>%
+    gather(nectar.production, key = 'key', value = 'value') %>%
+    mutate(value = mean(bee.length.plant.survey.$nectar.production) + sd(bee.length.plant.survey.$nectar.production) * value),
+  effects::effect('nectar.diversity', bee.length.plant.survey.lme.nectar.diversity, xlevels = 100) %>%
+    as.data.frame() %>%
+    gather(nectar.diversity, key = 'key', value = 'value')
+) %>% mutate(length = fit)
+```
+
+```{r}
+bee.length.plant.survey. %>%
+  gather(nectar.production, nectar.diversity, key = 'key', value = 'value') %>%
+  mutate(key = factor(key, levels = c('nectar.production', 'nectar.diversity'))) %>%
+  # gather(plant.abundance, plant.diversity, key = 'key', value = 'value') %>%
+  # mutate(key = factor(key, levels = c('plant.abundance', 'plant.diversity'))) %>%
+
+  ggplot(aes(x = value, y = length)) +
+  geom_point(alpha = 0.1) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), bee.length.plant.survey.lme, fill= 'grey60', alpha = 0.4) +
+  geom_line(data = bee.length.plant.survey.lme, color = '#3366FF', size = 1) +
+  labs(y = 'Predicted individual wing length') +
+  theme_classic(base_size = 14) +
+  facet_wrap(
+    . ~ key,
+    strip.position = 'bottom',
+    scales = 'free_x',
+    labeller = as_labeller(c(
+      plant.abundance = 'A. Plant coverage (%)',
+      plant.diversity = 'B. Number of plant species',
+      nectar.production = 'C. Plant coverage adjusted\nfor nectar production',
+      nectar.diversity = 'D. Number of nectar-\nproducing plant species'
+    ))
+  ) +
+  theme(strip.background = element_blank(), strip.placement = 'outside', strip.text = element_text(size = 14)) +
+  xlab(NULL)
+```
+
+```{r}
+ggsave('../figures/vegetation-bee_length.png', width = 7, height = 4, dpi = 300)
+# ggsave('../figures/vegetation-bee_length-nectar.png', width = 7, height = 4, dpi = 300)
+# ggsave('../figures/vegetation-bee_length-bombus_less.png', width = 7, height = 4, dpi = 300)
+```
+
+### Oligolects
+
+```{r}
+bee.diet <- abundance %>%
+  mutate(
+    species = str_replace_all(species, '_', ' '),
+    species = str_replace(species, ' cf$', ''),
+
+    species = str_replace(species, '^Andrena minitula$', 'Andrena minutula'),
+    species = str_replace(species, '^Chalicodoma ericetorum$', 'Megachile ericetorum'),
+    species = str_replace(species, '^Nomada conjugens$', 'Nomada conjungens'),
+    species = str_replace(species, '^Nomada lathburnia$', 'Nomada lathburiana'),
+    species = str_replace(species, '^Lasioglossum sextrigatum$', 'Lasioglossum sexstrigatum')
+  ) %>%
+  left_join(locations.plant.survey_, by = 'location') %>%
+  left_join(bees.eis, by = c(species = 'Soort')) %>%
+  mutate(
+    oligolect = recode(Bloembezoek, oligo = 1, .default = 0, .missing = 0),
+    polylect = recode(Bloembezoek, poly = 1, .default = 0, .missing = 0),
+    abundance = replace_na(abundance, 0)
+  ) %>%
+  filter(abundance > 0) %>%
+  select(
+    location,
+    year,
+    plant.abundance,
+    plant.diversity,
+    nectar.production,
+    nectar.diversity,
+    polylect,
+    oligolect
+  )
+
+bee.diet.summary <- bee.diet %>%
+  gather(plant.abundance, plant.diversity, nectar.production, nectar.diversity, key = 'key', value = 'value') %>%
+  group_by(location, year, key, value) %>%
+  summarize(
+    sem.oligolect = sd(oligolect) / sqrt(n()),
+    mean.oligolect = mean(oligolect),
+    sem.polylect = sd(polylect) / sqrt(n()),
+    mean.polylect = mean(polylect),
+    n = n(),
+    .groups = 'drop'
+  )
+```
+
+```{r}
+summary(bee.diet.oligolect.lme.plant <- lme4::glmer(
+  oligolect ~ plant.diversity + year + (1 + plant.diversity | location),
+  family = 'binomial',
+  data = bee.diet
+))
+```
+
+```{r}
+summary(bee.diet.oligolect.lme.nectar <- lme4::glmer(
+  oligolect ~ nectar.diversity + year + (1 + plant.diversity | location),
+  family = 'binomial',
+  data = bee.diet
+))
+```
+
+```{r}
+bee.diet.oligolect.lme <- rbind(
+  effects::effect('plant.diversity', bee.diet.oligolect.lme.plant, xlevels = 100) %>%
+    as.data.frame() %>%
+    gather(plant.diversity, key = 'key', value = 'value'),
+  effects::effect('nectar.diversity', bee.diet.oligolect.lme.nectar, xlevels = 100) %>%
+    as.data.frame() %>%
+    gather(nectar.diversity, key = 'key', value = 'value')
+) %>% mutate(oligolect = fit)
+
+bee.diet %>%
+  gather(plant.diversity, nectar.diversity, key = 'key', value = 'value') %>%
+  ggplot(aes(x = value, y = oligolect, group = 0)) +
+  geom_point(
+    aes(x = value, y = mean.oligolect),
+    data = bee.diet.summary %>% filter(key %in% c('plant.diversity', 'nectar.diversity')),
+    alpha = 0.2
+  ) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), bee.diet.oligolect.lme, fill= 'grey60', alpha = 0.4) +
+  geom_line(data = bee.diet.oligolect.lme, color = '#3366FF', size = 1) +
+  labs(
+    y = 'Share of oligolectic species',
+    color = NULL,
+    size = 'Number of individuals'
+  ) +
+  theme_classic(base_size = 14) +
+  scale_fill_gradient(low = 'white', high = 'black') +
+  facet_wrap(
+    . ~ factor(key, levels = c('plant.diversity', 'nectar.diversity')),
+    strip.position = 'bottom',
+    scales = 'free_x',
+    labeller = as_labeller(c(
+      plant.diversity = 'A. Number of plant species',
+      nectar.diversity = 'B. Number of nectar-producing \nplant species'
+    ))
+  ) +
+  theme(
+    strip.background = element_blank(),
+    strip.placement = 'outside',
+    strip.text = element_text(vjust = 1, size = 14)
+  ) +
+  xlab(NULL)
+```
+
+```{r}
+ggsave('../figures/diet-oligo.png', width = 7, height = 4, dpi = 300)
+```
+
+### Polylects
+
+```{r statistics (plant coverage)}
+summary(bee.diet.polylect.lme.plant <- lme4::glmer(
+  polylect ~ plant.abundance + year + (1 + plant.abundance | location),
+  data = bee.diet,
+  family = 'binomial'
+))
+```
+
+```{r statistics (nectar production)}
+summary(bee.diet.polylect.lme.nectar <- lme4::glmer(
+  polylect ~ nectar.production + year + (1 + nectar.production | location),
+  data = bee.diet,
+  family = 'binomial'
+))
+```
+
+```{r}
+bee.diet.polylect.lme <- rbind(
+  effects::effect('plant.abundance', bee.diet.polylect.lme.plant, xlevels = 100) %>%
+    as.data.frame() %>%
+    gather(plant.abundance, key = 'key', value = 'value'),
+  effects::effect('nectar.production', bee.diet.polylect.lme.nectar, xlevels = 100) %>%
+    as.data.frame() %>%
+    gather(nectar.production, key = 'key', value = 'value')
+) %>% mutate(polylect = fit)
+
+bee.diet %>%
+  gather(plant.abundance, nectar.production, key = 'key', value = 'value') %>%
+  ggplot(aes(x = value, y = polylect)) +
+  geom_point(
+    aes(x = value, y = mean.polylect),
+    data = bee.diet.summary %>% filter(key %in% c('plant.abundance', 'nectar.production')),
+    alpha = 0.2
+  ) +
+  geom_ribbon(aes(ymax = upper, ymin = lower), bee.diet.polylect.lme, fill= 'grey60', alpha = 0.4) +
+  geom_line(data = bee.diet.polylect.lme, color = '#3366FF', size = 1) +
+  labs(
+    y = 'Share of polylectic species',
+    color = NULL,
+    size = 'Number of individuals'
+  ) +
+  theme_classic(base_size = 14) +
+  scale_fill_gradient(low = 'white', high = 'black') +
+  facet_wrap(
+    . ~ factor(key, levels = c('plant.abundance', 'nectar.production')),
+    strip.position = 'bottom',
+    scales = 'free_x',
+    labeller = as_labeller(c(
+      plant.abundance = 'A. Plant coverage (%)',
+      nectar.production = 'B. Plant coverage adjusted \nfor nectar production'
+    ))
+  ) +
+  theme(
+    strip.background = element_blank(),
+    strip.placement = 'outside',
+    strip.text = element_text(vjust = 1, size = 14)
+  ) +
+  xlab(NULL)
+```
+
+```{r}
+ggsave('../figures/diet-poly.png', width = 7, height = 4, dpi = 300)
+```
+
+### Specific oligolects
+
+```{r}
+abundance %>%
+  mutate(
+    species = str_replace_all(species, '_', ' '),
+    species = str_replace(species, ' cf$', ''),
+
+    species = str_replace(species, '^Andrena minitula$', 'Andrena minutula'),
+    species = str_replace(species, '^Chalicodoma ericetorum$', 'Megachile ericetorum'),
+    species = str_replace(species, '^Nomada conjugens$', 'Nomada conjungens'),
+    species = str_replace(species, '^Nomada lathburnia$', 'Nomada lathburiana'),
+    species = str_replace(species, '^Lasioglossum sextrigatum$', 'Lasioglossum sexstrigatum')
+  ) %>%
+  left_join(bees.eis, by = c(species = 'Soort')) %>%
+  mutate(diet = replace_na(Bloembezoek, 'parasite')) %>%
+  group_by(diet, species) %>%
+  summarize(abundance = sum(abundance, na.rm = TRUE), .groups = 'drop_last') %>%
+  arrange(desc(abundance)) %>%
+  summarize(rank = 1:10, species = paste0(species, ' (', abundance, ')')[rank], .groups = 'drop') %>%
+  spread(key = diet, value = species) %>%
+  select(oligo, `poly b`, poly, parasite)
+```
+
+#### _Chelostoma florisomne_
+
+```{r}
+bees.Ch_florisomne <- abundance %>%
+  filter(species == 'Chelostoma_florisomne') %>%
+  group_by(location, year) %>%
+  summarize(abundance = sum(abundance, na.rm = TRUE), .groups = 'drop') %>%
+  left_join(gather(locations.plant.survey, -species, key = 'location', value = 'abundance'), by = 'location') %>%
+  filter(str_starts(species, 'Ranunculus')) %>%
+  filter(!is.na(abundance.x)) %>%
+  select(location, year, species, abundance.x, abundance.y) %>%
+  group_by(location, year, abundance.x) %>%
+  summarize(abundance.y = sum(abundance.y), .groups = 'drop')
+```
+
+```{r}
+bees.Ch_florisomne.model <- zeroinfl(abundance.x ~ abundance.y, data = bees.Ch_florisomne)
+bees.Ch_florisomne.dummy <- data.frame(abundance.y = 0:12.5)
+bees.Ch_florisomne.dummy <- bees.Ch_florisomne.dummy %>%
+  mutate(
+    abundance.x = predict(bees.Ch_florisomne.model, bees.Ch_florisomne.dummy)
+  )
+```
+
+```{r}
+bees.Ch_florisomne %>%
+  group_by(abundance.y, abundance.x) %>%
+  summarize(n = n(), .groups = 'drop') %>%
+  ggplot(aes(x = abundance.y, y = abundance.x)) +
+  geom_point(aes(size = n)) +
+  # geom_smooth(method = 'glm', formula = y ~ x, method.args = list(family = 'poisson'), data = bees.Ch_florisomne) +
+  # geom_line(data = bees.Ch_florisomne.dummy) +
+  scale_x_continuous(breaks = 0:6 * 2) +
+  theme_classic(base_size = 14) +
+  labs(
+    x = expression(italic('Ranunculus') * ' spp. coverage (%)'),
+    y = expression(italic('Chelostoma florisomne') * ' individuals'),
+    size = 'Number of samples'
+  )
+```
+
+```{r}
+ggsave('../figures/diet-chelostoma-florisomne.png', width = 7, height = 4, dpi = 300)
+```
+
+```{r}
+summary(lm(abundance.x ~ abundance.y, data = bees.Ch_florisomne))
+summary(zeroinfl(abundance.x ~ abundance.y, data = bees.Ch_florisomne))
+```
+
+## Landscape
+
+### Agriculture
+
+```{r data}
+locations.agriculture.radius <- 1000
+
+locations.agriculture <- locations.landuse %>%
+  filter(radius == locations.agriculture.radius) %>%
+  filter(typelandgebruik %in% c('akkerland')) %>%
+  group_by(location) %>%
+  summarise(area = sum(area) / (pi * locations.agriculture.radius^2), .groups = 'drop')
+
+abundance.agriculture <- abundance %>%
+  filter(!is.na(abundance)) %>%
+  group_by(location, location_x, location_y, year) %>%
+  summarise(
+    diversity = sum(sign(abundance)),
+    abundance = sum(abundance),
+    .groups = 'drop'
+  ) %>%
+  left_join(locations.agriculture, by = 'location') %>%
+  mutate(area = replace_na(area, 0))
+
+summary(abundance.agriculture.lme.abundance <- lme4::glmer(
+  abundance ~ area + year + (1 + area | location),
+  data = abundance.agriculture,
+  family = 'poisson'
+))
+
+summary(abundance.agriculture.lme.diversity <- lme4::glmer(
+  diversity ~ area + year + (1 + area | location),
+  data = abundance.agriculture,
+  family = 'poisson'
+))
+
+abundance.agriculture.lme <- rbind(
+  effects::effect('area', abundance.agriculture.lme.abundance, xlevels = 100) %>%
+    as.data.frame() %>%
+    mutate(key = 'abundance'),
+  effects::effect('area', abundance.agriculture.lme.diversity, xlevels = 100) %>%
+    as.data.frame() %>%
+    mutate(key = 'diversity')
+) %>% mutate(value = fit)
+
+print(abundance.agriculture.plot <- abundance.agriculture %>%
+  gather(abundance, diversity, key = 'key', value = 'value') %>%
+  ggplot(aes(x = area, y = value)) +
+  geom_point() +
+  geom_ribbon(aes(ymax = upper, ymin = lower), abundance.agriculture.lme, fill = 'grey60', alpha = 0.4) +
+  geom_line(data = abundance.agriculture.lme, color = '#3366FF', size = 1) +
+  theme_classic(base_size = 14) +
+  labs(x = paste0('Agricultural area in a ', locations.agriculture.radius, ' m radius'), y = 'Count') +
+  scale_x_continuous(labels = function (number) paste(100 * number, '%', sep = '')) +
+
+  facet_wrap(
+    . ~ key,
+    scales = 'free_y',
+    labeller = as_labeller(c(
+      abundance = 'A. Number of individuals\nper location per year',
+      diversity = 'B. Number of species\nper location per year'
+    ))
+  ) +
+  theme(strip.background = element_blank(), strip.placement = 'outside', strip.text = element_text(size = 14)))
+
+ggsave(paste0('../figures/landuse-agriculture-', locations.agriculture.radius, '.png'), width = 7, height = 4, dpi = 300)
+```
+
+### Urban & residential area
+
+```{r data}
+locations.residential.radius <- 200
+
+locations.residential <- locations.landuse %>%
+  filter(radius == locations.residential.radius) %>%
+  filter(typelandgebruik %in% c('overig')) %>%
+  group_by(location) %>%
+  summarise(area = sum(area) / (pi * locations.residential.radius^2), .groups = 'drop')
+
+abundance.residential <- abundance %>%
+  filter(!is.na(abundance)) %>%
+  group_by(location, location_x, location_y, year) %>%
+  summarise(
+    diversity = sum(sign(abundance)),
+    abundance = sum(abundance),
+    .groups = 'drop'
+  ) %>%
+  left_join(locations.residential, by = 'location') %>%
+  mutate(area = replace_na(area, 0))
+
+summary(abundance.residential.lme.abundance <- lme4::glmer(
+  abundance ~ area + year + (1 + area | location),
+  data = abundance.residential,
+  family = 'poisson'
+))
+
+summary(abundance.residential.lme.diversity <- lme4::glmer(
+  diversity ~ area + year + (1 + area | location),
+  data = abundance.residential,
+  family = 'poisson'
+))
+
+abundance.residential.lme <- rbind(
+  effects::effect('area', abundance.residential.lme.abundance, xlevels = 100) %>%
+    as.data.frame() %>%
+    mutate(key = 'abundance'),
+  effects::effect('area', abundance.residential.lme.diversity, xlevels = 100) %>%
+    as.data.frame() %>%
+    mutate(key = 'diversity')
+) %>% mutate(value = fit)
+
+print(abundance.residential.plot <- abundance.residential %>%
+  gather(abundance, diversity, key = 'key', value = 'value') %>%
+  ggplot(aes(x = area, y = value)) +
+  geom_point() +
+  geom_ribbon(aes(ymax = upper, ymin = lower), abundance.residential.lme, fill = 'grey60', alpha = 0.4) +
+  geom_line(data = abundance.residential.lme, color = '#3366FF', size = 1) +
+  theme_classic(base_size = 14) +
+  labs(x = paste0('Residential area in a ', locations.residential.radius, ' m radius'), y = 'Count') +
+  scale_x_continuous(labels = function (number) paste(100 * number, '%', sep = '')) +
+
+  facet_wrap(
+    . ~ key,
+    scales = 'free_y',
+    labeller = as_labeller(c(
+      abundance = 'A. Number of individuals\nper location per year',
+      diversity = 'B. Number of species\nper location per year'
+    ))
+  ) +
+  theme(strip.background = element_blank(), strip.placement = 'outside', strip.text = element_text(size = 14)))
+
+ggsave(paste0('../figures/landuse-residential-', locations.residential.radius, '.png'), width = 7, height = 4, dpi = 300)
+```
+
+### Noop area
+
+```{r data}
+locations.other.radius <- 1000
+
+locations.other <- locations.landuse %>%
+  filter(radius == locations.other.radius) %>%
+  filter(typelandgebruik %in% c('basaltblokken, steenglooiing', 'zand')) %>%
+  group_by(location) %>%
+  summarise(area = sum(area) / (pi * locations.other.radius^2), .groups = 'drop')
+
+abundance.other <- abundance %>%
+  filter(!is.na(abundance)) %>%
+  group_by(location, location_x, location_y, year) %>%
+  summarise(
+    diversity = sum(sign(abundance)),
+    abundance = sum(abundance),
+    .groups = 'drop'
+  ) %>%
+  left_join(locations.other, by = 'location') %>%
+  mutate(area = replace_na(area, 0))
+
+summary(abundance.other.lme.abundance <- lme4::glmer(
+  abundance ~ area + year + (1 + area | location),
+  data = abundance.other,
+  family = 'poisson'
+))
+
+summary(abundance.other.lme.diversity <- lme4::glmer(
+  diversity ~ area + year + (1 + area | location),
+  data = abundance.other,
+  family = 'poisson'
+))
+
+abundance.other.lme <- rbind(
+  effects::effect('area', abundance.other.lme.abundance, xlevels = 100) %>%
+    as.data.frame() %>%
+    mutate(key = 'abundance'),
+  effects::effect('area', abundance.other.lme.diversity, xlevels = 100) %>%
+    as.data.frame() %>%
+    mutate(key = 'diversity')
+) %>% mutate(value = fit)
+
+print(abundance.other.plot <- abundance.other %>%
+  gather(abundance, diversity, key = 'key', value = 'value') %>%
+  ggplot(aes(x = area, y = value)) +
+  geom_point() +
+  geom_ribbon(aes(ymax = upper, ymin = lower), abundance.other.lme, fill = 'grey60', alpha = 0.4) +
+  geom_line(data = abundance.other.lme, color = '#3366FF', size = 1) +
+  theme_classic(base_size = 14) +
+  labs(x = paste0('Other area in a ', locations.other.radius, ' m radius'), y = 'Count') +
+  scale_x_continuous(labels = function (number) paste(100 * number, '%', sep = '')) +
+  facet_wrap(
+    . ~ key,
+    scales = 'free_y',
+    labeller = as_labeller(c(
+      abundance = 'A. Mean number of individuals\nper location per year',
+      diversity = 'B. Mean number of species\nper location per year'
+    ))
+  ) +
+  theme(strip.background = element_blank(), strip.placement = 'outside', strip.text = element_text(size = 14)))
+
+ggsave(paste0('../figures/landuse-other-', locations.other.radius, '.png'), width = 7, height = 4, dpi = 300)
+```
+
+### Geographical barrier
+
+```{r}
+abundance.barrier <- abundance %>%
+  filter(!is.na(abundance)) %>%
+  mutate(side = ifelse(str_starts(location, 'ND'), 'left', 'right'))
+abundance.barrier %>%
+  group_by(side, species) %>%
+  summarize(abundance = sum(abundance, na.rm = TRUE), .groups = 'drop') %>%
+  spread(side, abundance, fill = 0)
+```
+
+```{r}
+summary(aov(abundance ~ side * species, data = abundance.barrier))
+```
+
+#### NMDS
+
+```{r}
+abundance.nmds.data <- abundance %>%
+  group_by(location, species) %>%
+  summarize(abundance = sum(abundance, na.rm = TRUE), .groups = 'drop') %>%
+  spread(species, abundance)
+abundance.nmds.data.location <- abundance.nmds.data$location
+abundance.nmds.data.side <- factor(ifelse(str_starts(abundance.nmds.data.location, 'ND'), 'West', 'East'))
+abundance.nmds.data <- abundance.nmds.data %>% select(-location)
+abundance.nmds.data
+```
+
+```{r}
+abundance.nmds <- metaMDS(abundance.nmds.data, labels = abundance.nmds.data.location)
+
+abundance.nmds.data.sites <- as.data.frame(scores(abundance.nmds)) %>%
+  mutate(site = abundance.nmds.data.location, Group = abundance.nmds.data.side)
+abundance.nmds.data.hull <- abundance.nmds.data.sites %>%
+  group_by(Group) %>%
+  summarise(site = chull(NMDS1, NMDS2), NMDS1 = NMDS1[site], NMDS2 = NMDS2[site], .groups = 'drop')
+
+ggplot(abundance.nmds.data.sites, aes(x = NMDS1, y = NMDS2, color = Group)) +
+  geom_polygon(aes(fill = Group, group = Group), alpha = 0.3, data = abundance.nmds.data.hull, show.legend = FALSE) +
+  ggrepel::geom_text_repel(aes(label = site), show.legend = FALSE) +
+  geom_point() +
+  theme_classic(base_size = 14)
+```
+
+```{r}
+ggsave('../figures/barrier.png', dpi = 300, width = 7, height = 4)
+```
+
+```{r}
+abundance.nmds.vegdist <- vegdist(abundance.nmds.data)
+summary(anosim(abundance.nmds.vegdist, abundance.nmds.data.side))
+```
+
+```{r}
+adonis2(abundance.nmds.vegdist ~ abundance.nmds.data.side)
+```
+
+```{r}
+abundance.nmds.mrpp <- mrpp(abundance.nmds.vegdist, abundance.nmds.data.side)
+abundance.nmds.mrpp
+```
+
+## PCA
+
+```{r}
+locations.samples.pca.data <- abundance %>%
+  spread(key = 'species', value = 'abundance') %>%
+  mutate(year2020 = ifelse(year == '2020', 1, 0), year2021 = ifelse(year == '2021', 1, 0)) %>%
+  select(location, year2020, year2021) %>%
+  left_join(
+    locations.landuse.500 %>%
+      group_by(location, typelandgebruik) %>%
+      summarize(area = sum(area), .groups = 'drop') %>%
+      spread(key = 'typelandgebruik', value = 'area', fill = 0),
+    by = 'location'
+  ) %>%
+  left_join(
+    locations.plant.survey %>%
+      pivot_longer(cols = -species, names_to = 'location', values_to = 'abundance') %>%
+      pivot_wider(names_from = species, values_from = abundance, values_fn = list) %>%
+      unnest(cols = everything()),
+    by = 'location'
+  ) %>%
+  filter(!is.na(akkerland)) %>%
+  select(-location) %>%
+  select(which(apply(., 2, var) != 0))
+```
+
+```{r}
+locations.samples.pca <- prcomp(locations.samples.pca.data, center = TRUE, scale. = TRUE)
+summary(locations.samples.pca)
+```
+
+```{r}
+plot(locations.samples.pca)
+```
+
+```{r}
+print(biplot(locations.samples.pca))
+dev.copy(png, '../figures/pca-all.png', width = 6000, height = 6000)
+dev.off()
+```
+
+```{r}
+manova(abundance)
+```

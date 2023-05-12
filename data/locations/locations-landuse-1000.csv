@@ -1,0 +1,425 @@
+location,typelandgebruik,voorkomen,area
+EN000,akkerland,,973033.837859989
+EN000,"basaltblokken, steenglooiing",,21131.1009060037
+EN000,"bos: loofbos",,80897.5440208002
+EN000,"bos: loofbos","dras, moerassig",5085.71232013433
+EN000,fruitkwekerij,,289907.636993504
+EN000,grasland,,975254.225924608
+EN000,grasland,"dras, moerassig",13447.0923618767
+EN000,grasland,"met riet",11721.8726697003
+EN000,overig,,56459.071766041
+EN000,zand,,41903.6879218541
+EN004,akkerland,,657731.433968686
+EN004,"basaltblokken, steenglooiing",,33368.1035992097
+EN004,"bos: loofbos",,80419.6252923773
+EN004,"bos: loofbos","dras, moerassig",4958.6248750011
+EN004,fruitkwekerij,,256252.343731498
+EN004,grasland,,965583.262313869
+EN004,grasland,"met riet",14662.8862927008
+EN004,grasland,"met riet|dras, moerassig",3811.11477491471
+EN004,overig,,135359.329739665
+EN004,zand,,41580.613207569
+EN008,aanlegsteiger,,70.0879068139087
+EN008,akkerland,,596483.862219606
+EN008,"basaltblokken, steenglooiing",,41172.8402266673
+EN008,"bos: loofbos",,71295.9742269117
+EN008,fruitkwekerij,,44917.6381614857
+EN008,grasland,,1086392.62025574
+EN008,grasland,"met riet",15196.6988305568
+EN008,grasland,"met riet|dras, moerassig",3031.71172745714
+EN008,overig,,253768.051277658
+EN008,zand,,45805.5267461716
+EN018,aanlegsteiger,,659.370052184361
+EN018,akkerland,,21638.3506215676
+EN018,"basaltblokken, steenglooiing",,55599.8970357429
+EN018,"bos: loofbos",,69314.2796650512
+EN018,"bos: loofbos","dras, moerassig",1021.02510822397
+EN018,grasland,,1368875.42585292
+EN018,grasland,"dras, moerassig",66055.5270464847
+EN018,grasland,"met riet",82090.8784649508
+EN018,grasland,"met riet|dras, moerassig",25478.8143886555
+EN018,overig,,383519.02920973
+EN018,zand,,57803.9683102795
+EN024,aanlegsteiger,,659.370052184361
+EN024,akkerland,,62566.8574016231
+EN024,"basaltblokken, steenglooiing",,51960.4219401875
+EN024,"bos: loofbos",,80832.0424755186
+EN024,"bos: loofbos","dras, moerassig",19378.2974900825
+EN024,grasland,,1283629.29936073
+EN024,grasland,"met riet",64535.3302399115
+EN024,grasland,"met riet|dras, moerassig",20903.836096797
+EN024,overig,,465693.629012615
+EN024,zand,,70118.1028135047
+EN030,akkerland,,62566.8574016231
+EN030,"basaltblokken, steenglooiing",,39658.8500526361
+EN030,boomgaard,,3051.12260240716
+EN030,"bos: loofbos",,92031.1338906447
+EN030,"bos: loofbos","dras, moerassig",6467.95374283752
+EN030,dodenakker,,2827.24730749991
+EN030,grasland,,1213883.7893231
+EN030,grasland,"met riet",39612.0501214085
+EN030,grasland,"met riet|dras, moerassig",10869.3172917948
+EN030,overig,,563345.487987955
+EN030,zand,,72710.5019809276
+EN049,akkerland,,31775.7708238031
+EN049,"basaltblokken, steenglooiing",,5605.74166680869
+EN049,boomgaard,,2249.44184900056
+EN049,"bos: loofbos",,336866.36838903
+EN049,"bos: loofbos","dras, moerassig",59815.7327951935
+EN049,grasland,,1303875.21892928
+EN049,grasland,"dras, moerassig",49310.1229833389
+EN049,grasland,"met riet",104458.221027166
+EN049,grasland,"met riet|dras, moerassig",32115.9342658709
+EN049,overig,,164768.526826752
+EN049,zand,,58190.7892008443
+EN054,"basaltblokken, steenglooiing",,16429.2788128584
+EN054,"bos: loofbos",,394926.157862027
+EN054,"bos: loofbos","dras, moerassig",59815.7327951935
+EN054,grasland,,1049160.43518899
+EN054,grasland,"dras, moerassig",52169.169441058
+EN054,grasland,"met riet",83788.3740073634
+EN054,grasland,"met riet|dras, moerassig",32115.9342658709
+EN054,overig,,67863.0841386267
+EN054,zand,,54466.3145031118
+EN060,akkerland,,23025.7441434461
+EN060,"basaltblokken, steenglooiing",,29544.9984169308
+EN060,"bos: loofbos",,333456.029661961
+EN060,"bos: loofbos","dras, moerassig",45306.7872274263
+EN060,grasland,,1081615.63377216
+EN060,grasland,"dras, moerassig",25458.9912898977
+EN060,grasland,"met riet",39830.2615455469
+EN060,grasland,"met riet|dras, moerassig",25012.7186381022
+EN060,overig,,262302.327116565
+EN060,zand,,49611.5059170946
+EN067,akkerland,,52111.2470914754
+EN067,"basaltblokken, steenglooiing",,32658.0417111775
+EN067,boomgaard,,339.805021913923
+EN067,"bos: gemengd bos",,1441.59850298641
+EN067,"bos: gemengd bos","dras, moerassig",6943.32093607696
+EN067,"bos: griend",,6342.33681609538
+EN067,"bos: loofbos",,242888.989299085
+EN067,"bos: loofbos","dras, moerassig",9276.95438025365
+EN067,grasland,,1343990.67043412
+EN067,grasland,"dras, moerassig",21684.1708889771
+EN067,grasland,"met riet",51608.0845013603
+EN067,grasland,"met riet|dras, moerassig",90881.4387205383
+EN067,overig,,137650.187435287
+EN067,zand,,76198.8739010884
+EN071,akkerland,,39295.1554916722
+EN071,"basaltblokken, steenglooiing",,25654.9223214019
+EN071,boomgaard,,2023.02199501805
+EN071,"bos: gemengd bos",,1441.59850298641
+EN071,"bos: gemengd bos","dras, moerassig",10208.5483611752
+EN071,"bos: loofbos",,297924.262971957
+EN071,"bos: loofbos","dras, moerassig",1181.47350799903
+EN071,"bos: naaldbos",,447.147335000135
+EN071,grasland,,1270312.55448482
+EN071,grasland,"dras, moerassig",71030.0490465518
+EN071,grasland,"met riet",47070.8409903175
+EN071,grasland,"met riet|dras, moerassig",209891.24544671
+EN071,overig,,97422.9392168804
+EN071,zand,,64600.5118574032
+EN077,akkerland,,130265.853845487
+EN077,"basaltblokken, steenglooiing",,1005.53029892776
+EN077,boomgaard,,2023.02199501805
+EN077,"bos: gemengd bos",,1441.59850298641
+EN077,"bos: gemengd bos","dras, moerassig",10208.5483611752
+EN077,"bos: loofbos",,274646.478130231
+EN077,"bos: loofbos","dras, moerassig",43974.963468881
+EN077,"bos: naaldbos",,447.147335000135
+EN077,grasland,,1674817.71644069
+EN077,grasland,"dras, moerassig",78822.7858721045
+EN077,grasland,"met riet",52390.7995726248
+EN077,grasland,"met riet|dras, moerassig",276745.556876766
+EN077,overig,,70721.3116429526
+EN077,zand,,23207.7482676165
+EN097,akkerland,,208018.204154623
+EN097,"basaltblokken, steenglooiing",,15774.661196482
+EN097,"bebouwd gebied",,16765.1821077151
+EN097,"bos: griend",,1351.68189648076
+EN097,"bos: loofbos",,141725.874464796
+EN097,fruitkwekerij,,2399.53972350081
+EN097,grasland,,1405571.11425002
+EN097,grasland,"dras, moerassig",31073.2043228114
+EN097,grasland,"met riet|dras, moerassig",36758.4710076731
+EN097,overig,,321401.166518676
+EN097,zand,,30574.5898288794
+EN101,akkerland,,132105.627151786
+EN101,"basaltblokken, steenglooiing",,18096.882391995
+EN101,"bebouwd gebied",,150066.72377685
+EN101,"bos: griend",,1043.85798500084
+EN101,"bos: loofbos",,101719.069179618
+EN101,dodenakker,,3586.83224513297
+EN101,fruitkwekerij,,2399.53972350081
+EN101,grasland,,1042487.27689211
+EN101,grasland,"dras, moerassig",24695.5320990625
+EN101,grasland,"met riet|dras, moerassig",34652.3279199518
+EN101,overig,,705348.376825488
+EN101,zand,,24542.283620935
+ME005,akkerland,,177667.348327848
+ME005,"basaltblokken, steenglooiing",,12508.8902400203
+ME005,boomgaard,,2763.2118007695
+ME005,"bos: loofbos",,94500.0317892419
+ME005,dodenakker,,8175.10578188238
+ME005,grasland,,684139.171061491
+ME005,grasland,"dras, moerassig",51021.693148369
+ME005,grasland,"met riet",1304.10224100036
+ME005,grasland,"met riet|dras, moerassig",1038.68102711163
+ME005,overig,,866845.5567542
+ME005,zand,,58053.76428108
+ME009,akkerland,,85423.9254413129
+ME009,"basaltblokken, steenglooiing",,12695.3584568222
+ME009,boomgaard,,3978.34411105054
+ME009,"bos: loofbos",,78423.237859677
+ME009,dodenakker,,4001.64990399967
+ME009,grasland,,669993.915279728
+ME009,grasland,"dras, moerassig",51021.693148369
+ME009,grasland,"met riet",1304.10224100036
+ME009,overig,,1021093.77585503
+ME009,zand,,56535.2117414782
+ME014,akkerland,,117814.218846943
+ME014,"basaltblokken, steenglooiing",,16836.8910136404
+ME014,boomgaard,,3840.85701959484
+ME014,"bos: loofbos",,42824.1203691725
+ME014,dodenakker,,4001.64990399967
+ME014,fruitkwekerij,,1903.75635976107
+ME014,grasland,,664567.799025641
+ME014,grasland,"dras, moerassig",1605.21345748949
+ME014,overig,,1131786.01194799
+ME014,zand,,43528.0245396527
+ME018,akkerland,,156425.740819608
+ME018,"basaltblokken, steenglooiing",,24360.0962135465
+ME018,boomgaard,,2164.6696957452
+ME018,"bos: loofbos",,17415.6265854692
+ME018,dodenakker,,4001.64990399967
+ME018,fruitkwekerij,,28965.6617483618
+ME018,grasland,,721595.215404579
+ME018,grasland,"dras, moerassig",1605.21345748949
+ME018,overig,,1071025.63965481
+ME018,zand,,35681.6828605932
+ME023,akkerland,,188415.191132366
+ME023,"basaltblokken, steenglooiing",,31479.3305170269
+ME023,boomgaard,,2164.6696957452
+ME023,"bos: loofbos",,15196.9148944522
+ME023,fruitkwekerij,,26850.0453832925
+ME023,grasland,,873326.093129309
+ME023,grasland,"dras, moerassig",1605.21345748949
+ME023,grasland,"met riet|dras, moerassig",12.6604028776551
+ME023,overig,,809397.258334656
+ME023,zand,,36724.0479627733
+ME027,akkerland,,210760.913950837
+ME027,"basaltblokken, steenglooiing",,26300.5130214504
+ME027,boomgaard,,2164.6696957452
+ME027,"bos: loofbos",,37532.1155160584
+ME027,"bos: loofbos","dras, moerassig",8263.83786622756
+ME027,fruitkwekerij,,35033.9418677194
+ME027,grasland,,932568.661896194
+ME027,grasland,"dras, moerassig",3801.96734111976
+ME027,grasland,"met riet",2762.84775969473
+ME027,grasland,"met riet|dras, moerassig",16056.7932763489
+ME027,overig,,749547.966073224
+ME027,zand,,25113.5810466884
+ME031,akkerland,,289863.284095244
+ME031,"basaltblokken, steenglooiing",,3772.56042386667
+ME031,boomgaard,,3470.47736073649
+ME031,"bos: loofbos",,47901.8295837922
+ME031,"bos: loofbos","dras, moerassig",8598.73303585488
+ME031,fruitkwekerij,,40137.924090493
+ME031,grasland,,1132581.06922264
+ME031,grasland,"dras, moerassig",45795.4891449147
+ME031,grasland,"met riet",24112.8253485513
+ME031,grasland,"met riet|dras, moerassig",16056.7932763489
+ME031,overig,,784120.419215045
+ME031,zand,,13911.5865307135
+ME035,akkerland,,332069.975895893
+ME035,boomgaard,,3032.67743572779
+ME035,"bos: loofbos",,70683.4805633505
+ME035,"bos: loofbos","dras, moerassig",11418.9896174818
+ME035,fruitkwekerij,,26954.6325360916
+ME035,grasland,,1233858.79573569
+ME035,grasland,"dras, moerassig",79366.6037755482
+ME035,grasland,"met riet",24112.8253485513
+ME035,grasland,"met riet|dras, moerassig",21586.0672840552
+ME035,overig,,740154.425365298
+ME046,akkerland,,408323.93162601
+ME046,boomgaard,,3032.67743572779
+ME046,boomkwekerij,,1185.37997662546
+ME046,"bos: loofbos",,230294.295590991
+ME046,"bos: loofbos","dras, moerassig",174094.542379822
+ME046,dodenakker,,1377.8367969955
+ME046,fruitkwekerij,,2176.46860681945
+ME046,grasland,,924067.255246936
+ME046,grasland,"dras, moerassig",145434.532130716
+ME046,grasland,"met riet",24112.8253485513
+ME046,grasland,"met riet|dras, moerassig",34820.8096450434
+ME046,overig,,413007.182124323
+ME052,akkerland,,644561.112673344
+ME052,boomgaard,,1944.11594243169
+ME052,boomkwekerij,,1185.37997662546
+ME052,"bos: loofbos",,193574.812691542
+ME052,"bos: loofbos","dras, moerassig",131553.900884475
+ME052,"bos: naaldbos",,6859.98894516158
+ME052,dodenakker,,1377.8367969955
+ME052,fruitkwekerij,,2176.46860681945
+ME052,grasland,,1039489.15593313
+ME052,grasland,"dras, moerassig",68251.8258535115
+ME052,grasland,"met riet",14036.2047701547
+ME052,grasland,"met riet|dras, moerassig",12103.3854517906
+ME052,overig,,251557.949752537
+ME059,akkerland,,707164.934611516
+ME059,"basaltblokken, steenglooiing",,4533.47113206082
+ME059,boomkwekerij,,1185.37997662546
+ME059,"bos: loofbos",,196005.715233065
+ME059,"bos: loofbos","dras, moerassig",86283.1679475771
+ME059,"bos: naaldbos",,6859.98894516158
+ME059,dodenakker,,1377.8367969955
+ME059,fruitkwekerij,,54588.9082184609
+ME059,grasland,,890017.67838366
+ME059,grasland,"dras, moerassig",32654.1735524518
+ME059,grasland,"met riet",11721.8726697003
+ME059,grasland,"met riet|dras, moerassig",10864.294345448
+ME059,overig,,44222.1189940475
+ME059,zand,,30132.5725818895
+ME063,akkerland,,728203.63090467
+ME063,"basaltblokken, steenglooiing",,12469.0136666991
+ME063,"bos: loofbos",,161695.014312574
+ME063,"bos: loofbos","dras, moerassig",50636.59596332
+ME063,"bos: naaldbos",,1639.97800610503
+ME063,fruitkwekerij,,222512.888019547
+ME063,grasland,,890600.16150965
+ME063,grasland,"dras, moerassig",18631.9413665414
+ME063,grasland,"met riet",11721.8726697003
+ME063,grasland,"met riet|dras, moerassig",910.971267015285
+ME063,overig,,27026.7365981355
+ME063,zand,,39521.8724047376
+ME067,akkerland,,973101.413771715
+ME067,"basaltblokken, steenglooiing",,17114.7337414069
+ME067,"bos: loofbos",,120780.205265596
+ME067,"bos: loofbos","dras, moerassig",20177.1583470732
+ME067,fruitkwekerij,,289907.636993504
+ME067,grasland,,857854.799688151
+ME067,grasland,"dras, moerassig",13447.0923618767
+ME067,grasland,"met riet",11721.8726697003
+ME067,overig,,34569.554401137
+ME067,zand,,44081.3664823883
+ND039,akkerland,,62494.7010957047
+ND039,"basaltblokken, steenglooiing",,9565.33445218692
+ND039,boomgaard,,5729.26713939424
+ND039,"bos: gemengd bos",,2201.02395209613
+ND039,"bos: loofbos",,71443.6520180051
+ND039,dodenakker,,2871.63339406485
+ND039,fruitkwekerij,,200201.161269793
+ND039,grasland,,980198.465800703
+ND039,overig,,834968.472816066
+ND039,populieren,,1738.68026337259
+ND039,zand,,18046.3632953225
+ND046,akkerland,,160428.683333997
+ND046,"basaltblokken, steenglooiing",,8802.03548783367
+ND046,boomgaard,,5473.47434424918
+ND046,"bos: loofbos",,70416.8789300779
+ND046,"bos: loofbos","dras, moerassig",33308.5328044982
+ND046,dodenakker,,2871.63339406485
+ND046,fruitkwekerij,,206211.351380096
+ND046,grasland,,1048643.19489513
+ND046,grasland,"dras, moerassig",13387.9977292749
+ND046,overig,,467364.100511845
+ND046,populieren,,1738.68026337259
+ND046,zand,,41759.8135160347
+ND051,aanlegsteiger,,603.659346781466
+ND051,akkerland,,291137.468623413
+ND051,"basaltblokken, steenglooiing",,6302.48826508748
+ND051,boomgaard,,13117.6041282224
+ND051,boomkwekerij,,3136.09616705731
+ND051,"bos: loofbos",,84401.3117590213
+ND051,"bos: loofbos","dras, moerassig",57670.4493196751
+ND051,dodenakker,,12.9696112715756
+ND051,fruitkwekerij,,193200.822856552
+ND051,grasland,,1324782.41641644
+ND051,grasland,"dras, moerassig",62448.5738986226
+ND051,grasland,"met riet|dras, moerassig",1927.63547342598
+ND051,overig,,490635.76591088
+ND051,populieren,,1738.68026337259
+ND051,zand,,34917.1540773488
+ND056,aanlegsteiger,,1036.80821807898
+ND056,akkerland,,293302.749914544
+ND056,"basaltblokken, steenglooiing",,6403.42000581958
+ND056,boomgaard,,7768.60657947673
+ND056,boomkwekerij,,6879.62497210621
+ND056,"bos: loofbos",,90472.6859328106
+ND056,"bos: loofbos","dras, moerassig",57670.4493196751
+ND056,dodenakker,,9747.68541773123
+ND056,fruitkwekerij,,137447.518615621
+ND056,grasland,,1345403.8037301
+ND056,grasland,"dras, moerassig",62448.5738986226
+ND056,grasland,"met riet|dras, moerassig",1927.63547342598
+ND056,overig,,478826.995509596
+ND056,zand,,42460.2131006935
+ND063,aanlegsteiger,,1036.80821807898
+ND063,akkerland,,330283.012915439
+ND063,"basaltblokken, steenglooiing",,11635.713539286
+ND063,boomgaard,,9147.67353039571
+ND063,boomkwekerij,,6383.46083211527
+ND063,"bos: loofbos",,82860.0154669953
+ND063,"bos: loofbos","dras, moerassig",57670.4493196751
+ND063,dodenakker,,3574.14880924069
+ND063,fruitkwekerij,,216667.668664304
+ND063,grasland,,1187515.40544083
+ND063,grasland,"dras, moerassig",83259.7299828118
+ND063,grasland,"met riet|dras, moerassig",1927.63547342598
+ND063,overig,,361379.704701799
+ND063,zand,,59174.7967051605
+ND067,aanlegsteiger,,932.788219985502
+ND067,akkerland,,393819.516789201
+ND067,"basaltblokken, steenglooiing",,18978.1236443679
+ND067,boomgaard,,21327.4073891275
+ND067,boomkwekerij,,14289.4688397415
+ND067,"bos: loofbos",,96656.9498575218
+ND067,"bos: loofbos","dras, moerassig",34722.3753228905
+ND067,fruitkwekerij,,248515.137579775
+ND067,grasland,,1142888.89684665
+ND067,grasland,"dras, moerassig",81292.4643080375
+ND067,grasland,"met riet|dras, moerassig",1927.63547342598
+ND067,overig,,307432.60962215
+ND067,zand,,52727.1290924239
+ND071,akkerland,,298986.232497841
+ND071,"basaltblokken, steenglooiing",,23274.8501891277
+ND071,boomgaard,,22297.3665339644
+ND071,boomkwekerij,,19001.3763907139
+ND071,"bos: loofbos",,130883.643897593
+ND071,fruitkwekerij,,219812.953472225
+ND071,grasland,,1301032.13478996
+ND071,grasland,"dras, moerassig",32309.5307267445
+ND071,grasland,"met riet|dras, moerassig",1927.07125219125
+ND071,overig,,211328.956343919
+ND071,zand,,71898.1128036456
+ND077,akkerland,,422449.370599759
+ND077,"basaltblokken, steenglooiing",,22435.1170331847
+ND077,boomgaard,,23769.2214615952
+ND077,boomkwekerij,,17065.5581034494
+ND077,"bos: loofbos",,131662.015330338
+ND077,fruitkwekerij,,300161.142599288
+ND077,grasland,,1097612.98939469
+ND077,grasland,"dras, moerassig",66504.7831447558
+ND077,overig,,147763.192812751
+ND077,zand,,88947.9774204689
+ND081,akkerland,,389051.318239037
+ND081,"basaltblokken, steenglooiing",,22089.1664294554
+ND081,boomgaard,,24619.6375784032
+ND081,boomkwekerij,,16231.7636278774
+ND081,"bos: loofbos",,167646.807836694
+ND081,"bos: loofbos","dras, moerassig",3451.83228562179
+ND081,fruitkwekerij,,337872.06804063
+ND081,grasland,,1031328.45543157
+ND081,grasland,"dras, moerassig",43977.1308780165
+ND081,overig,,180250.4358559
+ND081,zand,,91962.6349124198
+ND090,akkerland,,253388.592817879
+ND090,"basaltblokken, steenglooiing",,22090.6527155218
+ND090,boomgaard,,21946.7568200098
+ND090,"bos: loofbos",,170759.690884419
+ND090,"bos: loofbos","dras, moerassig",18185.1330997489
+ND090,dodenakker,,81.4809213356584
+ND090,fruitkwekerij,,320762.081937166
+ND090,grasland,,1055835.51534813
+ND090,overig,,235303.018539073
+ND090,zand,,98841.1863937986
